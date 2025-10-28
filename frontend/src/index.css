@@ -226,15 +226,17 @@ button:disabled {
 }
 
 .msg.success {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: var(--success-text);
-  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: 2px solid #047857;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
 }
 
 .msg.error {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: var(--error-text);
-  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: 2px solid #b91c1c;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
 }
 
 .msg.success::before {
@@ -244,13 +246,13 @@ button:disabled {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #10b981;
-  color: white;
+  background: white;
+  color: #10b981;
   border-radius: 50%;
   font-weight: bold;
   font-size: 1.25rem;
   flex-shrink: 0;
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.3);
 }
 
 .msg.error::before {
@@ -260,13 +262,13 @@ button:disabled {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #ef4444;
-  color: white;
+  background: white;
+  color: #ef4444;
   border-radius: 50%;
   font-weight: bold;
   font-size: 1.25rem;
   flex-shrink: 0;
-  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.3);
 }
 
 footer {
@@ -586,6 +588,26 @@ footer code {
     padding: 16px;
     letter-spacing: 2px;
   }
+
+  /* Admin Dashboard Mobile Responsiveness */
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-cards {
+    display: block;
+  }
+}
+
+/* Desktop: Show table, hide cards */
+@media (min-width: 769px) {
+  .desktop-table {
+    display: block;
+  }
+
+  .mobile-cards {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -669,26 +691,28 @@ footer code {
   }
 
   .msg.success {
-    background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
     color: #ecfdf5;
-    border-color: #34d399;
+    border-color: #10b981;
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
   }
 
   .msg.error {
-    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #fee2e2;
     border-color: #f87171;
+    box-shadow: 0 15px 35px rgba(239, 68, 68, 0.5);
   }
 
   .msg.success::before {
-    background: #34d399;
-    color: #064e3b;
-    box-shadow: 0 4px 6px -1px rgba(52, 211, 153, 0.35);
+    background: #ecfdf5;
+    color: #059669;
+    box-shadow: 0 4px 8px -1px rgba(236, 253, 245, 0.4);
   }
 
   .msg.error::before {
-    background: #f87171;
-    color: #7f1d1d;
-    box-shadow: 0 4px 6px -1px rgba(248, 113, 113, 0.35);
+    background: #fee2e2;
+    color: #dc2626;
+    box-shadow: 0 4px 8px -1px rgba(254, 226, 226, 0.4);
   }
 }

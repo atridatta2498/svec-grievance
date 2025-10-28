@@ -682,7 +682,7 @@ app.get('/api/admin/statistics', verifyToken, async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running on http://62.72.31.209:${PORT}`);
+  console.log(`\n🚀 Server running on http://localhost:${PORT}`);
   console.log(`📧 SMTP configured for ${process.env.SMTP_HOST}`);
   console.log(`🗄️  Database: ${process.env.DB_NAME}\n`);
 });

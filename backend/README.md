@@ -1,433 +1,346 @@
-# Backend Setup Instructions (Node.js + Express + MySQL)
+# Grievance Portal (React + Node.js + MySQL)
 
-This backend uses Node.js with Express framework, MySQL database, and Nodemailer for SMTP email functionality.
+This is a full-stack Student & Faculty Grievance Portal built with React (Vite) for the frontend and Node.js/Express with MySQL for the backend. It uses Nodemailer for SMTP email delivery and implements OTP-based email verification.
 
-## Prerequisites
-- Node.js 16+ installed (download from https://nodejs.org/)
-- MySQL installed (XAMPP or standalone MySQL)
-- Gmail account (or other SMTP provider)
+## Features
 
-## Setup Steps
+### Frontend (React + Vite)
+- Role selection: Student / Teaching Faculty / Non-teaching Staff
+- Roll number / Faculty ID / Staff ID validation
+- Department dropdown with multiple departments
+- Year of study (shown only for students)
+- Email and mobile number fields
+- Grievance type dropdown with 7 categories
+- OTP-based email verification
+- Responsive design with mobile support
+- Modern gradient UI with smooth animations
 
-### 1. Install Dependencies
+### Backend (Node.js + Express + MySQL)
+- RESTful API endpoints
+- MySQL database with connection pooling
+- OTP generation and verification (5-minute expiry)
+- Email domain validation (@srivasaviengg.ac.in, @sves.org.in)
+- SMTP email sending with HTML templates
+- CORS enabled
+- Error handling and validation
 
-Open Command Prompt in the backend folder:
+### Validation Rules
+- **Student Roll Number:** `23A51A0501` or `23A5` format
+- **Faculty ID:** `T-ABCD123` format (T- + 4 letters + 1-3 digits)
+- **Email Domains:** Only @srivasaviengg.ac.in or @sves.org.in
+- **OTP:** 6-digit code, valid for 5 minutes
+
+## Quick Start
+
+### 1. Install Frontend Dependencies
 ```cmd
-cd C:\Users\Sripad\Desktop\Grievance\grievance-portal\backend
+cd C:\Users\Sripad\Desktop\Grievance\grievance-portal\frontend
 npm install
 ```
 
-This will install:
-- express - Web framework
-- mysql2 - MySQL client
-- nodemailer - Email sending
-- cors - Cross-origin requests
-- dotenv - Environment variables
-- body-parser - Request body parsing
-
-### 2. Create MySQL Database
-
-1. Start MySQL (via XAMPP or standalone)
-2. Open MySQL command line or phpMyAdmin
-3. Run the SQL from `database.sql`:
-   - Creates `grievance_portal` database
-   - Creates `grievances` table
-   - Creates `otps` table
-   - Creates `admin_users` table (optional)
-
-**Via MySQL Command Line:**
+### 2. Install Backend Dependencies
 ```cmd
-mysql -u root -p < database.sql
+cd ..\backend
+npm install
 ```
 
-**Via phpMyAdmin:**
-- Open http://localhost/phpmyadmin
-- Click "Import" → Select `database.sql` → Click "Go"
+### 3. Setup MySQL Database
+- Start MySQL (via XAMPP or standalone)
+- Import `backend/database.sql` to create database and tables
 
-### 3. Configure Environment Variables
-
-Edit the `.env` file with your settings:
-
-**Database Configuration:**
+### 4. Configure Backend Environment
+Copy `backend/.env.example` to `backend/.env` and configure:
 ```env
+# Database
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=grievance_portal
-```
 
-**Server Configuration:**
-```env
+# Server
 PORT=5000
-```
 
-**SMTP Configuration (Gmail):**
-```env
+# SMTP (Gmail example)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_SECURE=false
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 SMTP_FROM_EMAIL=noreply@srivasaviengg.ac.in
 SMTP_FROM_NAME=Grievance Portal
+
+# Security
+JWT_SECRET=your-secret-key-change-this-in-production
+JWT_EXPIRY=24h
+ALLOWED_DOMAINS=@srivasaviengg.ac.in,@sves.org.in
+OTP_EXPIRY_MINUTES=5
 ```
 
-**Email Domain Validation:**
+### 5. Configure Frontend Environment
+Copy `frontend/.env.example` to `frontend/.env`:
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_ALLOWED_DOMAINS=@srivasaviengg.ac.in,@sves.org.in
+VITE_OTP_EXPIRY_MINUTES=5
+```
+
+### 6. Start Backend Server
+```cmd
+cd backend
+npm run dev
+```
+Server runs on http://localhost:5000
+
+### 7. Start Frontend Development Server
+```cmd
+cd ..\frontend
+npm run dev
+```
+Frontend runs on http://localhost:5173
+
+## Project Structure
+
+```
+grievance-portal/
+├── frontend/                   # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── GrievanceForm.jsx      # User grievance form
+│   │   │   ├── AdminLogin.jsx         # Admin login page
+│   │   │   ├── ChangePassword.jsx     # Password change page
+│   │   │   └── AdminDashboard.jsx     # Admin dashboard
+│   │   ├── App.jsx                    # App container
+│   │   ├── main.jsx                   # React entry point
+│   │   ├── index.css                  # Global styles
+│   │   └── firebase.js                # (Legacy - not used)
+│   ├── index.html                     # HTML entry
+│   ├── package.json                   # Frontend dependencies
+│   └── vite.config.js                 # Vite configuration
+│
+├── backend/                    # Node.js Backend
+│   ├── .env                           # Environment configuration
+│   ├── .gitignore                     # Git ignore for backend
+│   ├── package.json                   # Backend dependencies
+│   ├── server.js                      # Express server & API routes
+│   ├── db.js                          # MySQL connection pool
+│   ├── mailer.js                      # Email sending functions
+│   ├── database.sql                   # Database schema
+│   ├── migration_hash_grievances.sql  # Migration script
+│   ├── README.md                      # Backend setup guide
+│   ├── ADMIN_SYSTEM.md                # Admin authentication docs
+│   └── HASHING_SYSTEM.md              # Data privacy docs
+│
+└── README.md                   # This file
+```
+
+## API Endpoints
+
+### Public Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Health check |
+| POST | `/api/send-otp` | Send OTP to email |
+| POST | `/api/verify-otp` | Verify OTP code |
+| POST | `/api/submit-grievance` | Submit grievance (hashed) |
+
+### Admin Endpoints (Protected)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/login` | Admin login (returns JWT) |
+| POST | `/api/admin/change-password` | Change password |
+| POST | `/api/admin/verify-token` | Verify JWT token |
+| GET | `/api/admin/profile` | Get admin profile |
+| GET | `/api/grievances` | Get all grievances (metadata only) |
+| GET | `/api/grievances/:id` | Get grievance by ID |
+| PUT | `/api/grievances/:id/status` | Update grievance status |
+| GET | `/api/admin/statistics` | Get statistics dashboard |
+
+## Database Schema
+
+### `grievances` Table
+- id, name, role, user_id, department, year, email, mobile
+- **grievance_type_hash** (VARCHAR 255), **grievance_hash** (TEXT) - Hashed for privacy
+- status (pending/in-progress/resolved/rejected), email_verified
+- created_at, updated_at
+
+### `otps` Table
+- id, email, otp, verified, expires_at, created_at
+
+### `admin_users` Table
+- id, username, password_hash, email, full_name
+- role (super_admin/admin/moderator), is_first_login, last_login
+- created_at, updated_at
+
+**Default Admin Accounts:**
+- admin1, admin2, admin3, moderator1, moderator2
+- Default password: `Admin@123` (must change on first login)
+
+## Configuration
+
+### Backend Environment Variables
+
+All backend configuration is in `backend/.env`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_HOST` | MySQL host | localhost |
+| `DB_USER` | MySQL username | root |
+| `DB_PASSWORD` | MySQL password | (empty) |
+| `DB_NAME` | Database name | grievance_portal |
+| `PORT` | Server port | 5000 |
+| `SMTP_HOST` | SMTP server | smtp.gmail.com |
+| `SMTP_PORT` | SMTP port | 587 |
+| `SMTP_USER` | Email address | - |
+| `SMTP_PASS` | Email password/app password | - |
+| `SMTP_FROM_EMAIL` | Sender email | noreply@srivasaviengg.ac.in |
+| `SMTP_FROM_NAME` | Sender name | Grievance Portal |
+| `JWT_SECRET` | JWT secret key | (change in production) |
+| `JWT_EXPIRY` | JWT token expiry | 24h |
+| `ALLOWED_DOMAINS` | Allowed email domains (comma-separated) | @srivasaviengg.ac.in,@sves.org.in |
+| `OTP_EXPIRY_MINUTES` | OTP validity duration | 5 |
+
+### Frontend Environment Variables
+
+All frontend configuration is in `frontend/.env`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_BASE_URL` | Backend API URL | http://localhost:5000/api |
+| `VITE_APP_NAME` | Application name | Grievance Portal |
+| `VITE_APP_VERSION` | Application version | 1.0.0 |
+| `VITE_ALLOWED_DOMAINS` | Allowed email domains | @srivasaviengg.ac.in,@sves.org.in |
+| `VITE_OTP_EXPIRY_MINUTES` | OTP expiry (display only) | 5 |
+
+**Note:** Vite requires environment variables to be prefixed with `VITE_` to be accessible in the frontend.
+
+### Email Domain Validation
+Edit `backend/.env` and `frontend/.env`:
 ```env
 ALLOWED_DOMAINS=@srivasaviengg.ac.in,@sves.org.in
+VITE_ALLOWED_DOMAINS=@srivasaviengg.ac.in,@sves.org.in
 ```
 
-**OTP Settings:**
+### OTP Expiry Time
+Edit `backend/.env`:
 ```env
 OTP_EXPIRY_MINUTES=5
 ```
 
-### 4. Gmail App Password Setup
+### Server Port
+Edit `backend/.env`:
+```env
+PORT=5000
+```
+And update `frontend/.env`:
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
 
-1. Go to Google Account Settings: https://myaccount.google.com/
-2. Security → 2-Step Verification (enable it)
-3. Security → App Passwords
-4. Generate a new app password for "Mail"
-5. Copy the 16-character password
-6. Paste it in `.env` as `SMTP_PASS`
+## Gmail SMTP Setup
 
-### 5. Start the Backend Server
+1. Enable 2-Step Verification in Google Account
+2. Generate App Password:
+   - Go to https://myaccount.google.com/security
+   - App Passwords → Select "Mail" → Generate
+3. Copy the 16-character password
+4. Use it as `SMTP_PASS` in `.env`
 
-**Development mode (with auto-restart):**
+## Development
+
+### Frontend Development
 ```cmd
-npm run dev
+cd frontend
+npm run dev          # Start Vite dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
 ```
 
-**Production mode:**
+### Backend Development
 ```cmd
-npm start
-```
-
-You should see:
-```
-✓ Database connected successfully
-✓ SMTP server ready to send emails
-🚀 Server running on http://localhost:5000
-📧 SMTP configured for smtp.gmail.com
-🗄️  Database: grievance_portal
-```
-
-### 6. Test the API
-
-Open a new terminal and test endpoints:
-
-**Health Check:**
-```cmd
-curl http://localhost:5000/api/health
-```
-
-**Send OTP (using PowerShell):**
-```powershell
-$body = @{ email = "student@srivasaviengg.ac.in" } | ConvertTo-Json
-Invoke-RestMethod -Uri "http://localhost:5000/api/send-otp" -Method POST -Body $body -ContentType "application/json"
-```
-
-**Or use Postman/Insomnia to test:**
-- POST `http://localhost:5000/api/send-otp`
-- Body: `{ "email": "student@srivasaviengg.ac.in" }`
-
-### 7. Start the React Frontend
-
-Open a new terminal:
-```cmd
-cd C:\Users\Sripad\Desktop\Grievance\grievance-portal
-npm run dev
-```
-
-The React app will connect to the Node.js backend at `http://localhost:5000/api`
-
-## API Endpoints
-
-### `GET /api/health`
-Health check endpoint
-- Response: `{ success: true, message: "Server is running" }`
-
-### `POST /api/send-otp`
-Send OTP to email
-- Body: `{ "email": "user@srivasaviengg.ac.in" }`
-- Response: `{ "success": true, "message": "OTP sent to your email" }`
-
-### `POST /api/verify-otp`
-Verify OTP code
-- Body: `{ "email": "user@srivasaviengg.ac.in", "otp": "123456" }`
-- Response: `{ "success": true, "message": "OTP verified successfully" }`
-
-### `POST /api/submit-grievance`
-Submit grievance (requires verified OTP)
-- Body: All form fields
-- Response: `{ "success": true, "message": "Grievance submitted successfully", "grievanceId": 123 }`
-
-### `GET /api/grievances`
-Get all grievances (for admin)
-- Response: `{ "success": true, "data": [...] }`
-
-### `GET /api/grievances/:id`
-Get specific grievance by ID
-- Response: `{ "success": true, "data": {...} }`
-
-## File Structure
-
-```
-backend/
-├── .env                 # Environment configuration
-├── package.json         # Node.js dependencies
-├── server.js           # Main Express server
-├── db.js               # MySQL connection pool
-├── mailer.js           # Email sending functions
-├── database.sql        # Database schema
-└── README.md           # This file
+cd backend
+npm run dev          # Start with nodemon (auto-restart)
+npm start            # Start server normally
 ```
 
 ## Troubleshooting
 
-### Port already in use
-Change the port in `.env`:
-```env
-PORT=5001
-```
-And update frontend API URL in `src/components/GrievanceForm.jsx`
+### Port Already in Use
+- Change `PORT` in `backend/.env`
+- Update `API_BASE_URL` in React frontend
 
-### Email not sending
-1. Check SMTP credentials in `.env`
-2. Use Gmail App Password (not regular password)
-3. Enable "Less secure app access" if using regular Gmail (not recommended)
-4. Check firewall/antivirus blocking port 587
-5. Try port 465 with `SMTP_SECURE=true`
+### Email Not Sending
+- Verify Gmail App Password
+- Check SMTP credentials
+- Check firewall settings
+- Look for emails in spam folder
 
-### Database connection error
-1. Make sure MySQL is running
-2. Check database credentials in `.env`
-3. Verify database exists: `SHOW DATABASES;`
-4. Test connection: `mysql -u root -p`
+### Database Connection Error
+- Ensure MySQL is running
+- Verify credentials in `.env`
+- Check if database exists
 
-### CORS errors
-The backend has CORS enabled for all origins. If issues persist:
-1. Make sure both servers are running
-2. Check browser console for exact error
-3. Verify API_BASE_URL in React frontend
-
-### Module not found
-Run `npm install` in the backend folder to install all dependencies
+### CORS Errors
+- Ensure backend server is running
+- Check `API_BASE_URL` in frontend matches backend port
 
 ## Production Deployment
 
-### Heroku Deployment
-```cmd
-# Install Heroku CLI
-heroku login
-heroku create grievance-portal-backend
-heroku addons:create cleardb:ignite
-heroku config:set SMTP_USER=your-email@gmail.com
-heroku config:set SMTP_PASS=your-app-password
-git push heroku main
-```
+### Backend
+- Deploy to Heroku, Railway, or DigitalOcean
+- Set environment variables on hosting platform
+- Use production MySQL database (ClearDB, PlanetScale, AWS RDS)
 
-### Environment Variables in Production
-Set all `.env` variables as environment variables on your hosting platform
+### Frontend
+- Build: `npm run build`
+- Deploy `dist/` folder to Vercel, Netlify, or Cloudflare Pages
+- Update `API_BASE_URL` to production backend URL
 
-### Security Best Practices
-1. Never commit `.env` to version control
-2. Use strong database passwords
-3. Enable HTTPS in production
-4. Implement rate limiting (e.g., express-rate-limit)
-5. Add request validation middleware
-6. Use helmet.js for security headers
-7. Implement proper logging (e.g., winston, morgan)
+## Future Enhancements
 
-## Additional Features to Implement
+- [x] Admin dashboard for managing grievances ✅
+- [x] Grievance data privacy protection (bcrypt hashing) ✅
+- [x] JWT authentication system ✅
+- [ ] Status update notifications via email
+- [ ] File attachment support
+- [ ] Advanced search and filtering
+- [ ] Analytics and reporting
+- [ ] Multi-language support
+- [ ] SMS notifications
+- [ ] CAPTCHA integration
+- [ ] Rate limiting on API endpoints
+- [ ] 2FA for admin accounts
+- [ ] Audit logging for admin actions
 
-- Admin authentication and dashboard
-- Grievance status updates
-- Email notifications on status changes
-- File attachments support
-- Search and filter grievances
-- Analytics and reporting
-- Rate limiting for OTP requests
-- CAPTCHA integration
+## Technologies Used
+
+**Frontend:**
+- React 18
+- Vite 5
+- Modern CSS (Flexbox, Grid, Custom Properties)
+
+**Backend:**
+- Node.js
+- Express.js
+- MySQL2 (with promises)
+- Nodemailer
+- bcrypt (password & data hashing)
+- jsonwebtoken (JWT authentication)
+- CORS
+- dotenv
+
+## License
+
+MIT License - feel free to use this project for educational purposes.
 
 ## Support
 
-For issues or questions:
-- Check logs in terminal
-- Enable debug mode: `DEBUG=* npm start`
-- Check MySQL logs
-- Verify email in spam folder
+For detailed backend setup, see `backend/README.md`
+For admin authentication details, see `backend/ADMIN_SYSTEM.md`
+For data privacy system details, see `backend/HASHING_SYSTEM.md`
 
-## Prerequisites
-- XAMPP installed (download from https://www.apachefriends.org/)
-- PHP 7.4 or higher
-- MySQL
+For issues:
+1. Check both frontend and backend terminals for errors
+2. Verify MySQL is running
+3. Check `.env` configuration
+4. Test API endpoints with Postman/curl
+5. Ensure JWT_SECRET is set in backend `.env`
 
-## Setup Steps
-
-### 1. Copy Backend Files
-Copy the entire `backend` folder to your XAMPP `htdocs` directory:
-```
-C:\xampp\htdocs\grievance-portal\backend\
-```
-
-### 2. Create Database
-1. Start XAMPP Control Panel
-2. Start Apache and MySQL services
-3. Open phpMyAdmin: http://localhost/phpmyadmin
-4. Import the `database.sql` file to create the database and tables
-   - Or run the SQL commands from `database.sql` manually
-
-### 3. Configure Backend Settings
-
-Edit `backend/config.php` and update:
-
-**Database Configuration:**
-```php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');          // Your MySQL username
-define('DB_PASS', '');              // Your MySQL password (default is empty)
-define('DB_NAME', 'grievance_portal');
-```
-
-**SMTP Configuration:**
-
-For Gmail:
-```php
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);  // Use 465 for SSL
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');  // Use App Password, not regular password
-define('SMTP_FROM_EMAIL', 'noreply@srivasaviengg.ac.in');
-define('SMTP_FROM_NAME', 'Grievance Portal');
-```
-
-**Gmail App Password Setup:**
-1. Go to Google Account Settings
-2. Security → 2-Step Verification (enable it)
-3. Security → App Passwords
-4. Generate a new app password for "Mail"
-5. Use this 16-character password in config.php
-
-For other SMTP providers (e.g., Outlook, custom SMTP):
-- Update `SMTP_HOST` and `SMTP_PORT` accordingly
-- Outlook: smtp-mail.outlook.com, port 587
-- Custom: Ask your email provider
-
-### 4. Install PHPMailer (Recommended for Production)
-
-For better email delivery, install PHPMailer:
-
-1. Open Command Prompt in the backend folder:
-```cmd
-cd C:\xampp\htdocs\grievance-portal\backend
-```
-
-2. Install Composer (if not installed): https://getcomposer.org/download/
-
-3. Install PHPMailer:
-```cmd
-composer require phpmailer/phpmailer
-```
-
-4. Uncomment the PHPMailer code in `smtp-mailer.php` (lines 20-50)
-5. Comment out the basic mail() function (lines 6-15)
-
-### 5. Test the Backend
-
-Open your browser and test:
-
-**Send OTP:**
-```
-http://localhost/grievance-portal/backend/send-otp.php
-```
-POST request with JSON body:
-```json
-{
-  "email": "student@srivasaviengg.ac.in"
-}
-```
-
-**Verify OTP:**
-```
-http://localhost/grievance-portal/backend/verify-otp.php
-```
-POST request with JSON body:
-```json
-{
-  "email": "student@srivasaviengg.ac.in",
-  "otp": "123456"
-}
-```
-
-### 6. Update Frontend API URL
-
-In `src/components/GrievanceForm.jsx`, the API URL is already set to:
-```javascript
-const API_BASE_URL = 'http://localhost/grievance-portal/backend'
-```
-
-If your XAMPP htdocs structure is different, update this URL accordingly.
-
-### 7. Enable CORS (if needed)
-
-If you get CORS errors, make sure these headers are in `config.php`:
-```php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-```
-
-## Troubleshooting
-
-### Email not sending:
-1. Check SMTP credentials in `config.php`
-2. Make sure Gmail "Less secure app access" is enabled OR use App Password
-3. Check PHP error logs: `C:\xampp\php\logs\php_error_log`
-4. Install PHPMailer for better reliability
-
-### Database connection error:
-1. Make sure MySQL is running in XAMPP
-2. Check database credentials in `config.php`
-3. Verify database exists in phpMyAdmin
-
-### OTP not received:
-1. Check spam/junk folder
-2. Check email in console logs (PHP error log)
-3. Test SMTP settings with a simple email script
-
-## API Endpoints
-
-### POST `/send-otp.php`
-Send OTP to email
-- Body: `{ "email": "user@domain.com" }`
-- Response: `{ "success": true/false, "message": "..." }`
-
-### POST `/verify-otp.php`
-Verify OTP
-- Body: `{ "email": "user@domain.com", "otp": "123456" }`
-- Response: `{ "success": true/false, "message": "..." }`
-
-### POST `/submit-grievance.php`
-Submit grievance (requires verified OTP)
-- Body: All form fields
-- Response: `{ "success": true/false, "message": "...", "grievanceId": 123 }`
-
-## Security Notes
-
-- Never commit `config.php` with real credentials to version control
-- Use environment variables in production
-- Enable HTTPS in production
-- Implement rate limiting for OTP requests
-- Add CAPTCHA to prevent abuse
-- Validate and sanitize all inputs (already done in PHP files)
-
-## Production Deployment
-
-1. Use a proper email service (SendGrid, Mailgun, AWS SES)
-2. Enable HTTPS
-3. Set up proper database user with limited privileges
-4. Use environment variables for sensitive config
-5. Enable PHP error logging but hide errors from users
-6. Implement proper session management
-7. Add admin dashboard for grievance management

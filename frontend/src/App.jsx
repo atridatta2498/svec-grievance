@@ -5,17 +5,13 @@ import AdminDashboard from './components/AdminDashboard'
 import ChangePassword from './components/ChangePassword'
 
 export default function App() {
-  const [view, setView] = useState('user') // 'user', 'admin-login', 'admin-dashboard', 'change-password'
-  const [admin, setAdmin] = useState(null)
-  const [token, setToken] = useState(null)
-
-  useEffect(() => {
-     // Check URL hash for admin login
-     const hash = window.location.hash
-     if (hash === '#admin' || hash === '#admin-login') {
-       setView('admin-login')
-     }
-   
+  // Initialize view based on URL hash immediately
+  const getInitialView = () => {
+    const hash = window.location.hash
+    if (hash === '#admin' || hash === '#admin-login') {
+      return 'admin-login'
+    }
+    
     // Check if admin is already logged in
     const savedToken = localStorage.getItem('adminToken')
     const savedAdmin = localStorage.getItem('adminInfo')
@@ -23,30 +19,65 @@ export default function App() {
     if (savedToken && savedAdmin) {
       try {
         const adminInfo = JSON.parse(savedAdmin)
-        setToken(savedToken)
-        setAdmin(adminInfo)
-        
-        // Check if first login
-        if (adminInfo.isFirstLogin) {
-          setView('change-password')
-        } else {
-          setView('admin-dashboard')
-        }
+        return adminInfo.isFirstLogin ? 'change-password' : 'admin-dashboard'
       } catch (err) {
         console.error('Failed to parse admin info:', err)
         localStorage.removeItem('adminToken')
         localStorage.removeItem('adminInfo')
       }
     }
-  }, [])
+    
+    return 'user'
+  }
+
+  const [view, setView] = useState(getInitialView)
+  const [admin, setAdmin] = useState(() => {
+    const savedAdmin = localStorage.getItem('adminInfo')
+    if (savedAdmin) {
+      try {
+        return JSON.parse(savedAdmin)
+      } catch {
+        return null
+      }
+    }
+    return null
+  })
+  const [token, setToken] = useState(() => localStorage.getItem('adminToken'))
+
+  useEffect(() => {
+    // Listen for hash changes
+    const handleHashChange = () => {
+      const hash = window.location.hash
+      if (hash === '#admin' || hash === '#admin-login') {
+        setView('admin-login')
+      } else if (hash === '') {
+        // Only go back to user if not logged in as admin
+        if (!admin) {
+          setView('user')
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [admin])
 
   function handleLoginSuccess(adminInfo, authToken) {
+    console.log('Login success - Admin info:', adminInfo)
+    console.log('isFirstLogin flag:', adminInfo.isFirstLogin)
+    
     setAdmin(adminInfo)
     setToken(authToken)
     
+    // Store in localStorage
+    localStorage.setItem('adminToken', authToken)
+    localStorage.setItem('adminInfo', JSON.stringify(adminInfo))
+    
     if (adminInfo.isFirstLogin) {
+      console.log('Redirecting to change password')
       setView('change-password')
     } else {
+      console.log('Redirecting to admin dashboard')
       setView('admin-dashboard')
     }
   }
@@ -175,7 +206,7 @@ export default function App() {
             <ChangePassword 
               token={token}
               onPasswordChanged={handlePasswordChanged}
-              onCancel={() => setView('admin-dashboard')}
+              onCancel={null}
             />
           </div>
         )}

@@ -86,9 +86,9 @@ export default function ChangePassword({ token, onPasswordChanged, onCancel }) {
   return (
     <div style={{ maxWidth: '500px', margin: '50px auto' }}>
       <div className="grievance-form">
-        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Change Password</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '10px', color: '#dc2626' }}>⚠️ Password Change Required</h2>
         <p style={{ textAlign: 'center', color: '#666', fontSize: '0.875rem', marginBottom: '20px' }}>
-          For security reasons, please change your password on first login.
+          For security reasons, you <strong>must</strong> change your password before accessing the dashboard.
         </p>
         
         {message && <div className={`msg ${message.type}`}>{message.text}</div>}
@@ -102,6 +102,7 @@ export default function ChangePassword({ token, onPasswordChanged, onCancel }) {
               value={passwords.currentPassword} 
               onChange={onChange}
               autoComplete="current-password"
+              required
             />
           </label>
 
@@ -113,6 +114,7 @@ export default function ChangePassword({ token, onPasswordChanged, onCancel }) {
               value={passwords.newPassword} 
               onChange={onChange}
               autoComplete="new-password"
+              required
             />
             <small style={{color: '#6b7280', fontSize: '0.8125rem', marginTop: '4px', display: 'block'}}>
               Must be at least 8 characters with uppercase, lowercase, number, and special character
@@ -127,20 +129,32 @@ export default function ChangePassword({ token, onPasswordChanged, onCancel }) {
               value={passwords.confirmPassword} 
               onChange={onChange}
               autoComplete="new-password"
+              required
             />
           </label>
 
           <div className="actions" style={{ gap: '10px' }}>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Changing...' : 'Change Password'}
+            <button type="submit" disabled={loading} style={{ 
+              width: '100%',
+              background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+              fontWeight: '700'
+            }}>
+              {loading ? 'Changing Password...' : '🔒 Change Password to Continue'}
             </button>
-            {onCancel && (
-              <button type="button" onClick={onCancel} style={{ background: '#6b7280' }}>
-                Cancel
-              </button>
-            )}
           </div>
         </form>
+        
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '12px', 
+          background: '#fef3c7', 
+          borderLeft: '4px solid #f59e0b',
+          borderRadius: '6px',
+          fontSize: '0.8125rem',
+          color: '#92400e'
+        }}>
+          <strong>Note:</strong> You cannot access the admin dashboard until you change your password.
+        </div>
       </div>
     </div>
   )
