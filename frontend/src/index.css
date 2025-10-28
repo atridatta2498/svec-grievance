@@ -389,6 +389,7 @@ footer code {
   border: 2px solid var(--accent);
   border-radius: 8px;
   font-size: 1rem;
+  color: #000000;
   outline: none;
   transition: all 0.2s ease;
 }
@@ -531,6 +532,7 @@ footer code {
   .grievance-form textarea {
     padding: 10px 14px;
     font-size: 0.9375rem;
+    color: #000000 !important;
   }
 
   .actions {
@@ -632,6 +634,7 @@ footer code {
   .grievance-form textarea {
     padding: 9px 12px;
     font-size: 0.875rem;
+    color: #000000 !important;
   }
 
   .tracking-section {
@@ -645,6 +648,7 @@ footer code {
   .tracking-input,
   .tracking-button {
     font-size: 0.9375rem;
+    color: #000000;
   }
 
   .tracking-id-display {
